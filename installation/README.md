@@ -1,10 +1,62 @@
 # Wireguard Configuration on Ubuntu 22.04
 These instructions are based on the following guide: <https://www.digitalocean.com/community/tutorials/how-to-set-up-wireguard-on-ubuntu-22-04>.
 
-## Server/Client Setup
+## Server Setup With Ansible
+The Ansible playbook installs Wireguard, generates a key pair and a configuration file for the VPN server, starts Wireguard, and configures Wireguard to restart on boot. After all that, it's still necessary to follow the manual instructions below to setup Wireguard on client machines. It's also necessary to copy each client machine public key to the server.
+
+#### Install Ansible
+Requires the "ansible" package. Just the "ansible-core" one is not enough, as "ansible-core" lacks the [community.general.timezone](https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html) module. More info at the [Ansible Installation Guide](https://docs.ansible.com/ansible/latest/installation_guide/).
+
+To check whether "community.general.timezone" is installed, run the following command:
+
+```
+ansible-galaxy collection list | grep community.general
+```
+
+To install it, use:
+
+```
+ansible-galaxy collection install community.general
+```
+
+
+#### Run the Ansible playbook
+
+Create a file with the name "inventory.ini" with the following content. Substitute "15.228.237.103" with the EC2 instance public IP address. The "terraform apply" command should have printed the public IP to the terminal if the instructions in the ["../infrastructure" README](/infrastructure/README.md) worked well.
+
+```
+[vpnservers]
+15.228.237.103
+```
+
+e.g
+```
+echo "\
+[vpnservers]
+15.228.237.103
+" | tee inventory.ini
+```
+
+If there's more than one instance, just append the other instances public IPs to the "inventory.ini" file. For example:
+
+```
+[vpnservers]
+15.228.237.103
+15.229.16.254
+54.232.24.149
+```
+
+Substitute "/path/to/private/ssh/key" with a private SSH key that can access the EC2 instance. Like the one generated following the [instructions in the "../infrastructure" README](/infrastructure/README.md).
+
+```
+ansible-playbook --private-key /path/to/private/ssh/key -i inventory.ini playbook.yml
+```
+
+## Server/Client Setup Without Ansible
 
 #### Install Wireguard
-Check <https://www.wireguard.com/install/> for more install options.
+Check <https://www.wireguard.com/install/> for more install options (including mobile apps).
+
 ```
 sudo apt update
 sudo apt install -y wireguard
@@ -63,7 +115,7 @@ sudo cat /etc/wireguard/public.key
 Peer A side: if peer A wg0 interface isn't up yet, it's necessary to up it. Then, run the following command to trust in peer B public key.
 ```
 # Substitute "base64_encoded_peer_public_key_goes_here" with the copied key.
-# "10.8.0.2" should be the same IP address used in the "Client configuration file" step. It's also the ip that will appear on peer B wg0 interface.
+# "10.8.0.2" should be the same IP address used in the "Client configuration file" step. It's also the IP that will appear on peer B wg0 interface.
 
 sudo wg set wg0 peer base64_encoded_peer_public_key_goes_here allowed-ips 10.8.0.2
 ```
