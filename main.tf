@@ -31,6 +31,7 @@ resource "aws_instance" "instance" {
   instance_type                        = "t2.micro"
   monitoring                           = false
   vpc_security_group_ids               = [aws_security_group.security_group.id]
+  depends_on                           = [aws_internet_gateway.internet_gateway]
   associate_public_ip_address          = true
   availability_zone                    = var.availability_zone
   subnet_id                            = aws_subnet.subnet.id
