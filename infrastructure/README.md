@@ -1,6 +1,16 @@
 # Infrastructure as Code
 Infrastructure as code of an EC2 instance meant for running a VPN that's useful for accessing machines behind a NAT Firewall (not redirecting all internet traffic).
 
+- [Instructions](#instructions)
+    - [Install Terraform](#install-terraform)
+    - [Generate SSH key pair](#generate-ssh-key-pair)
+    - [Configure variables for running Terraform](#configure-variables-for-running-terraform)
+    - [Initialize terraform if it isn't initialized yet](#initialize-terraform-if-it-isnt-initialized-yet)
+    - [Create all instance related resources](#create-all-instance-related-resources)
+    - [SSH into the instance](#ssh-into-the-instance)
+    - [Destroy the instance and everything created with it (optional)](#destroy-the-instance-and-everything-created-with-it-optional)
+
+
 ## Instructions
 
 #### Install Terraform

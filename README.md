@@ -1,6 +1,9 @@
 # AWS-EC2-VPN
 Infrastructure as code (IaC) of a VPN server meant for accessing machines behind NAT firewalls commonly used by ISPs.
 
+- [Folder Structure](#folder-structure)
+- [Instructions](#instructions)
+
 ## Folder Structure
 
 * **[infrastructure](/infrastructure/)**: infrastructure as code to configure an EC2 instance including VPC, EBS, etc.
@@ -11,7 +14,7 @@ Infrastructure as code (IaC) of a VPN server meant for accessing machines behind
 
 Each folder described in the "Folder Structure" section contains a "README.md" file. It's necessary to follow them in correct order, which is: 
 
-1. Following the "installation" folder ["README.md"](/installation/README.md), setup a remote backend for running the Terraform code in the "infrastructure" folder. If one wants to skip this step and use a local backend, just remove or comment the following line from the ["infrastructure/main.tf"](/infrastructure/main.tf) file:
+1. Following the "terraform_backend" folder ["README.md"](/terraform_backend/README.md), setup a remote backend for running the Terraform code in the "infrastructure" folder. If one wants to skip this step and use a local backend, just remove or comment the following line from the ["infrastructure/main.tf"](/infrastructure/main.tf) file:
 
 ```
   backend "s3" {}

@@ -1,5 +1,23 @@
 # Wireguard Configuration on Ubuntu 22.04
-These instructions are based on the following guide: <https://www.digitalocean.com/community/tutorials/how-to-set-up-wireguard-on-ubuntu-22-04>.
+Check <https://www.wireguard.com/install/> for more configuration options (including Android, iOS, Windows, and macOS).
+
+- [Install Ansible](#install-ansible)
+- [Server Setup With Ansible](#server-setup-with-ansible)
+    - [Run the "configure\_server.yml" playbook](#run-the-configure_serveryml-playbook)
+- [Setup Ubuntu client With Ansible](#setup-ubuntu-client-with-ansible)
+    - [Run the "configure\_client.yml" playbook](#run-the-configure_clientyml-playbook)
+- ["Mesh Network"](#mesh-network)
+  - [Make a client trust a server](#make-a-client-trust-a-server)
+    - [Run the "trust\_a\_server.yml" playbook](#run-the-trust_a_serveryml-playbook)
+  - [Make a client/server trust another client](#make-a-clientserver-trust-another-client)
+    - [Run the "trust\_a\_client.yml" playbook](#run-the-trust_a_clientyml-playbook)
+- [Manual Server/Client Setup](#manual-serverclient-setup)
+    - [Install Wireguard](#install-wireguard)
+    - [Generate key pair](#generate-key-pair)
+    - [Server configuration file](#server-configuration-file)
+    - [Client configuration file](#client-configuration-file)
+    - [How to configure a peer A to trust a peer B](#how-to-configure-a-peer-a-to-trust-a-peer-b)
+    - [Client/Server VPN startup](#clientserver-vpn-startup)
 
 ## Install Ansible
 Requires the "ansible" package. Just the "ansible-core" one is not enough, as "ansible-core" lacks the [community.general.timezone](https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html) module. More info at the [Ansible Installation Guide](https://docs.ansible.com/ansible/latest/installation_guide/).
@@ -177,6 +195,7 @@ echo "\
 PrivateKey = $(sudo cat /etc/wireguard/private.key)
 # Incrementing addresses by 1 each time you add a peer is generally the easiest way to allocate IPs.
 Address = 10.8.0.2/24
+SaveConfig = true
 
 [Peer]
 PublicKey = base64_encoded_server_public_key_goes_here
