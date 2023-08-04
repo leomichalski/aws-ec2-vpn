@@ -1,0 +1,24 @@
+- name: Make a client trust a server
+  hosts: vpnclients
+  # Every single command in this playbook requires root privileges.
+  become: true
+  vars:
+    server_port: 51820
+    persistent_keepalive: 16
+    trusted_server_private_vpn_cidr: 10.8.0.0/24
+    # dummy data as example
+    # server_public_ip: 192.168.0.30
+    # trusted_server_public_key: uxctuGrFQCcdEXKzmVEryXWMSO11MPGia9WNQKMbuGQ=
+
+  tasks:
+    - name: Trust the server
+      ansible.builtin.shell:
+        cmd: |
+          sudo wg set wg0 peer {{ trusted_server_public_key | quote }} \
+            allowed-ips {{ trusted_server_private_vpn_cidr | quote }} \
+            persistent-keepalive {{ persistent_keepalive | int }} \
+            endpoint {{ server_public_ip | quote }}:{{ server_port | int }}
+
+    - name: Restart wg-quick (and rewrite .conf file)
+      ansible.builtin.shell:
+        cmd: sudo systemctl restart wg-quick@wg0.service

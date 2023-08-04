@@ -1,5 +1,5 @@
-- name: Setup Wireguard VPN Server
-  hosts: vpnservers
+- name: Setup Wireguard VPN Client
+  hosts: vpnclients
   remote_user: ubuntu
   # Every single command in this playbook requires root privileges.
   become: true
@@ -7,21 +7,13 @@
     timezone: America/Sao_Paulo
     # Only run "apt update && apt upgrade" if the last update is older than 24*60*60 seconds.
     cache_valid_time: 86400
-    listen_port: 51820
-    address: 10.8.0.1/24
 
   tasks:
-    - name: Update and upgrade apt packages
+    - name: Update apt packages
       ansible.builtin.apt:
-        upgrade: true
+        upgrade: false
         update_cache: true
         cache_valid_time: "{{ cache_valid_time | int }}"
-
-    - name: Install tzdata, and ensure it is at the latest version
-      ansible.builtin.apt:
-        name: tzdata
-        state: latest
-        install_recommends: false
 
     - name: Set the timezone to {{ timezone | quote }}
       community.general.timezone:
@@ -45,15 +37,16 @@
           sudo chmod go= /etc/wireguard/private.key
           sudo cat /etc/wireguard/private.key | wg pubkey | sudo tee /etc/wireguard/public.key
 
-    - name: Create server configuration file
+    - name: Create client configuration file
       ansible.builtin.shell:
         cmd: |
           echo "\
           [Interface]
           PrivateKey = $(sudo cat /etc/wireguard/private.key)
-          Address = {{ address | quote }}
-          ListenPort = {{ listen_port | int }}
-          SaveConfig = true" | sudo tee /etc/wireguard/wg0.conf
+          # Incrementing addresses by 1 each time you add a peer is generally the easiest way to allocate IPs.
+          Address = {{ hostvars[inventory_hostname]['peer_vpn_ip'] | quote }}
+          SaveConfig = true
+          " | sudo tee /etc/wireguard/wg0.conf
 
     - name: Configure wg-quick to start on boot
       ansible.builtin.shell:

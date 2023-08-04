@@ -1,0 +1,61 @@
+- name: Setup Wireguard VPN Server
+  hosts: vpnserver
+  remote_user: ubuntu
+  # Every single command in this playbook requires root privileges.
+  become: true
+  vars:
+    timezone: America/Sao_Paulo
+    # Only run "apt update && apt upgrade" if the last update is older than 24*60*60 seconds.
+    cache_valid_time: 86400
+
+  tasks:
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        upgrade: true
+        update_cache: true
+        cache_valid_time: "{{ cache_valid_time | int }}"
+
+    - name: Install tzdata, and ensure it is at the latest version
+      ansible.builtin.apt:
+        name: tzdata
+        state: latest
+        install_recommends: false
+
+    - name: Set the timezone to {{ timezone | quote }}
+      community.general.timezone:
+        name: "{{ timezone | quote }}"
+
+    - name: Install Wireguard 1.0
+      ansible.builtin.apt:
+        name: wireguard=1.0*
+        install_recommends: false
+
+    - name: Generate key pair, Part 1
+      ansible.builtin.shell:
+        cmd: |
+          wg genkey | sudo tee /etc/wireguard/private.key
+        creates: /etc/wireguard/private.key
+
+    - name: Generate key pair, Part 2
+      ansible.builtin.shell:
+        # Always run. The public key is based on the private key anyway.
+        cmd: |
+          sudo chmod go= /etc/wireguard/private.key
+          sudo cat /etc/wireguard/private.key | wg pubkey | sudo tee /etc/wireguard/public.key
+
+    - name: Create server configuration file
+      ansible.builtin.shell:
+        cmd: |
+          echo "\
+          [Interface]
+          PrivateKey = $(sudo cat /etc/wireguard/private.key)
+          Address = {{ hostvars[inventory_hostname]['address'] | quote }}
+          ListenPort = {{ hostvars[inventory_hostname]['listen_port'] | int }}
+          SaveConfig = true" | sudo tee /etc/wireguard/wg0.conf
+
+    - name: Configure wg-quick to start on boot
+      ansible.builtin.shell:
+        # Always run. It makes no difference if it is already running.
+        cmd: |
+          sudo systemctl enable wg-quick@wg0.service
+          sudo systemctl start wg-quick@wg0.service
