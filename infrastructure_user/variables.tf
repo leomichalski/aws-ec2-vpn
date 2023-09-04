@@ -1,15 +1,3 @@
-variable "aws_access_key" {
-  type        = string
-  sensitive   = true // still accessible in the state data
-}
-variable "aws_secret_key" {
-  type        = string
-  sensitive   = true // still accessible in the state data
-}
-variable "aws_session_token" {
-  type        = string
-  sensitive   = true // still accessible in the state data
-}
 variable "region" {
   type        = string
   default     = "sa-east-1"

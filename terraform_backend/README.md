@@ -13,6 +13,17 @@ A backend defines where Terraform stores its state data files. This folder is us
 #### Install Terraform
 Terraform is required to run the following instructions. It can be [installed](https://developer.hashicorp.com/terraform/downloads), or used from [Docker](https://hub.docker.com/r/hashicorp/terraform/).
 
+#### Define the necessary AWS keys as environment variables
+
+```
+# Always required:
+export AWS_ACCESS_KEY_ID="AFG..."
+export AWS_SECRET_ACCESS_KEY="ASR..."
+
+# May be necessary:
+export AWS_SESSION_TOKEN="WIo..."
+```
+
 #### Initialize terraform locally if it isn't initialized yet
 
 ```

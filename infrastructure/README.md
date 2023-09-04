@@ -31,15 +31,12 @@ Fill the empty variables. Substitute "/path/to/file.pub" with the appropriate pa
 export TF_VAR_default_ssh_key_name=""
 export TF_VAR_default_ssh_public_key=$(cat /path/to/file.pub)
 
-# Terraform may look for these environment variables
-export AWS_ACCESS_KEY_ID=""
-export AWS_SECRET_ACCESS_KEY=""
-export AWS_SESSION_TOKEN=""
+# Required AWS credentials
+export AWS_ACCESS_KEY_ID="AFG..."
+export AWS_SECRET_ACCESS_KEY="ASR..."
 
-# Used as input variables for the ".tf" files
-export TF_VAR_aws_access_key=$AWS_ACCESS_KEY_ID
-export TF_VAR_aws_secret_key=$AWS_SECRET_ACCESS_KEY
-export TF_VAR_aws_session_token=$AWS_SESSION_TOKEN
+# May also be required
+export AWS_SESSION_TOKEN="WIo..."
 
 # More variables at "variables.tf" file
 ```
@@ -50,9 +47,6 @@ If using Terraform in Docker, just follow the previous step, then use the follow
 docker run --rm -it \
            -v ${PWD}:/current_dir -w /current_dir \
            --user "$(id -u):$(id -g)" \
-           -e "TF_VAR_aws_access_key=${TF_VAR_aws_access_key}" \
-           -e "TF_VAR_aws_secret_key=${TF_VAR_aws_secret_key}" \
-           -e "TF_VAR_aws_session_token=${TF_VAR_aws_session_token}" \
            -e "TF_VAR_default_ssh_key_name=${TF_VAR_default_ssh_key_name}" \
            -e "TF_VAR_default_ssh_public_key=${TF_VAR_default_ssh_public_key}" \
            -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" \

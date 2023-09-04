@@ -1,15 +1,3 @@
-variable "aws_access_key" {
-  type      = string
-  sensitive = true // still accessible in the state data
-}
-variable "aws_secret_key" {
-  type      = string
-  sensitive = true // still accessible in the state data
-}
-variable "aws_session_token" {
-  type      = string
-  sensitive = true // still accessible in the state data
-}
 variable "default_ssh_key_name" {
   type      = string
   sensitive = true // still accessible in the state data
