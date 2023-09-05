@@ -49,9 +49,19 @@ resource "aws_instance" "instance" {
   }
 }
 
+// Create a file with the instance public IP
+resource "local_file" "instance_public_ip" {
+  filename        = var.instance_public_ip_filename
+  file_permission = var.instance_public_ip_file_permission
+  content         = aws_instance.instance.public_ip
+}
+
+// Print the instance public IP to the screen
 output "instance_public_ip" {
   value = aws_instance.instance.public_ip
 }
+
+// Print the instance public DNS to the screen
 output "instance_public_dns" {
   value = aws_instance.instance.public_dns
 }

@@ -18,3 +18,11 @@ variable "project_tag" {
   type      = string
   default   = "my-vpn-tag"
 }
+variable "instance_public_ip_filename" {
+  type      = string
+  default   = "instance_public_ip.txt"
+}
+variable "instance_public_ip_file_permission" {
+  type      = string
+  default   = "0600"
+}
