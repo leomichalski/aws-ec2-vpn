@@ -31,11 +31,11 @@ Follow the instructions in the "infrastructure" folder ["README.md"](/infrastruc
 
 Follow the instructions in the "installation" folder ["README.md"](/installation/README.md) to setup the VPN server and its clients. There's two setup options: Ansible or manual. The "installation" instructions work with other Cloud Providers, the supported server operating system is Ubuntu 22.04.
 
-#### Automate the VPN server renting with [Jenkins](https://www.jenkins.io/)
+#### [optional] Automate the VPN server renting with [Jenkins](https://www.jenkins.io/)
 
-Install [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) in the Jenkins server.
-
-If there's already a Jenkins server, reuse the Jenkinsfile in the root folder of this directory to create a Jenkins pipeline. Otherwise, it's possible to temporarily setup Jenkins locally with the followings commands:
+Jenkins server setup:
+* If there's already a Jenkins server, install [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) there. Then, reuse the Jenkinsfile in the root folder of this directory to create a Jenkins pipeline.
+* Otherwise, it's possible to temporarily setup Jenkins locally with the followings commands:
 
 ```
 # Run Jenkins
@@ -59,7 +59,7 @@ exit
 
 docker logs -f jenkins-server
 
-# Access http://localhost:8080 to manually setup the pipeline using the Jenkinsfile in the root folder of this directory. Use the "initialAdminPassword" to login.
+# Access http://localhost:8080 to manually setup the pipeline using the Jenkinsfile in the root folder of this directory. Use the "initialAdminPassword" to log in.
 ```
 
 Generate SSH keys.
@@ -75,10 +75,10 @@ Create Jenkins credentials that the Jenkinsfile uses:
 | AWS_ACCESS_KEY_ID         | Previously generated IAM user AWS access key id.                                                                          | Secret text |
 | AWS_SECRET_ACCESS_KEY     | Previously generated IAM user AWS secret access key.                                                                      | Secret text |
 | REGION                    | Chosen region (e.g "sa-east-1").                                                                                          | Secret text |
-| AVAILABILITY_ZONE         | The availability zone must be in the chosen region (e.g "sa-east-1a").                                                    | Secret text |
+| AVAILABILITY_ZONE         | The availability zone must be in the chosen region (e.g. "sa-east-1a").                                                    | Secret text |
 | S3_BACKEND_DYNAMODB_TABLE | Dynamo DB table name (e.g "my-terraform-state-lock").                                                                     | Secret text |
 | S3_BACKEND_BUCKET         | S3 bucket name (e.g "my-terraform-state").                                                                                | Secret text |
-| S3_BACKEND_KEY_PATH       | Path to the Terraform state file (e.g "path/to/terraform.tfstate") in the S3 bucket.                                      | Secret text |
+| S3_BACKEND_KEY_PATH       | Path to the Terraform state file (e.g. "path/to/terraform.tfstate") in the S3 bucket.                                      | Secret text |
 | ENCRYPT                   | It enables server side encryption of the Terraform state file. Set the value to "true" (case sensitive).                  | Secret text |
 | SSH_PUBLIC_KEY            | Previously generated SSH public key (the ".pub" file). Terraform copies it to the VPN server.                             | Secret text |
 | SSH_KEY_NAME              | The key name of the previously generated SSH keys (same as the private key filename, not the whole path).                 | Secret text |
