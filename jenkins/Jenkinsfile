@@ -53,6 +53,58 @@ pipeline {
                         sh '''#!/bin/bash
                             terraform apply --auto-approve
                         '''
+
+                        // Make the external IP available for the next stage(s)
+                        env.EXTERNAL_IP=sh(script:'cat instance_public_ip.txt', returnStdout: true).trim()
+
+                        sh '''#!/bin/bash
+                            rm instance_public_ip.txt
+
+                            mkdir -p ~/.ssh
+
+                            # Only the jenkins user can read/write to "~/.ssh/known_hosts"
+                            touch ~/.ssh/known_hosts
+                            chmod 0600 ~/.ssh/known_hosts
+
+                            # Only update "jenkins" user "known_hosts" file if the EC2 instance IP changed
+                            ssh-keygen -F ${EXTERNAL_IP} > /dev/null 2>&1
+                            if [ $? -eq 0 ]; then
+                                echo "Host is already known"
+                            else
+                                echo "Updating known hosts"
+                                ssh-keyscan -t rsa ${EXTERNAL_IP} | tee -a ~/.ssh/known_hosts > /dev/null 2>&1
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage("Configure the VPN server.") {
+            environment {
+                SSH_PRIVATE_KEY_PATH = credentials("SSH_PRIVATE_KEY_PATH")
+                ADDRESS = "10.8.0.1/24"
+                LISTEN_PORT = "51820"
+            }
+            steps {
+                script {
+                    dir("installation") {
+                        sh '''#!/bin/bash
+                            # Only the user that created "inventory.ini" can read/write to it
+                            touch inventory.ini
+                            chmod 0600 inventory.ini
+
+                            # Fill the "inventory.ini" file
+                            echo "\
+                            [vpnserver]
+                            ${EXTERNAL_IP} ansible_ssh_private_key_file=${SSH_PRIVATE_KEY_PATH} address=${ADDRESS} listen_port=${LISTEN_PORT}
+                            " | awk '{$1=$1};1' | tee inventory.ini > /dev/null 2>&1
+
+                            # Install the VPN
+                            ansible-playbook -i inventory.ini configure_server.yml
+
+                            rm inventory.ini
+                        '''
                     }
                 }
             }
